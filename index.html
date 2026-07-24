@@ -319,6 +319,18 @@ table.leads tr:last-child td{border-bottom:none}
 @keyframes assistFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media (prefers-reduced-motion:reduce){.assist-bubble{animation:none}}
 
+.chat-modal{position:fixed;bottom:26px;right:26px;width:380px;height:520px;background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);display:none;flex-direction:column;z-index:1000;backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+.chat-modal.open{display:flex}
+.chat-modal-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.chat-modal-header h3{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+.chat-modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--ink-soft);padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.chat-modal-close:hover{color:var(--ink)}
+.chat-modal-body{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.chat-modal-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.chat-modal-input input{flex:1;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;background:var(--panel-alt);color:var(--ink-faint)}
+.chat-modal-input button{background:var(--assist);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:12px}
+.chat-modal-input button:hover{background:var(--assist-deep)}
+
 footer.page-footer{display:flex;justify-content:space-between;align-items:center;padding-top:38px;margin-top:38px;border-top:1px solid var(--border);flex-wrap:wrap;gap:14px}
 .tagline{font-family:'Cormorant',serif;font-style:italic;font-weight:600;font-size:20px;color:var(--assist)}
 .credit{font-size:11.5px;color:var(--ink-faint)}
@@ -985,6 +997,18 @@ body.app-locked header.topbar,body.app-locked .page,body.app-locked .mobile-nav,
   </svg></span>
   <span class="assist-txt" data-i18n="assist.label">Mi asistente personal</span>
 </button>
+
+<div class="chat-modal" id="chatModal">
+  <div class="chat-modal-header">
+    <h3>⚡ Azloom Intelligence</h3>
+    <button class="chat-modal-close" id="chatModalClose">✕</button>
+  </div>
+  <div class="chat-modal-body" id="chatModalBody"></div>
+  <div class="chat-modal-input">
+    <input type="text" id="chatModalInput" placeholder="Escribe tu pregunta...">
+    <button id="chatModalBtn">Enviar</button>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
@@ -1859,12 +1883,54 @@ document.getElementById('langBtn').addEventListener('click', function(){
 });
 document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
 document.getElementById('assistBtn').addEventListener('click', function(){
-  showPage('resumen');
-  setTimeout(function(){
-    var panel = document.querySelector('.ai-panel');
-    if(panel) panel.scrollIntoView({behavior:'smooth', block:'center'});
-    showAiAnswer('q4');
-  }, 250);
+  document.getElementById('chatModal').classList.add('open');
+  document.getElementById('chatModalInput').focus();
+});
+
+document.getElementById('chatModalClose').addEventListener('click', function(){
+  document.getElementById('chatModal').classList.remove('open');
+});
+
+document.getElementById('chatModalBtn').addEventListener('click', function(){
+  var input = document.getElementById('chatModalInput');
+  var question = (input.value || '').trim();
+  if(question){
+    var body = document.getElementById('chatModalBody');
+    var msgDiv = document.createElement('div');
+    msgDiv.style.alignSelf = 'flex-end';
+    msgDiv.style.maxWidth = '80%';
+    msgDiv.style.padding = '10px 14px';
+    msgDiv.style.background = 'var(--assist)';
+    msgDiv.style.color = '#fff';
+    msgDiv.style.borderRadius = '8px';
+    msgDiv.style.fontSize = '12px';
+    msgDiv.textContent = question;
+    body.appendChild(msgDiv);
+    input.value = '';
+
+    setTimeout(function(){
+      var q = question.toLowerCase();
+      var response = 'Respuesta inteligente a tu pregunta.';
+      if(q.includes('estrategia') || q.includes('strategy')) response = 'La mejor estrategia es enfocarse en la diferenciación. En real estate: 1) Especialización, 2) Excelente servicio, 3) Marketing fuerte. ¿En qué nicho?';
+      else if(q.includes('automatiz')) response = 'Puedes automatizar: CRM, Email, WhatsApp, Calendarios. Reduce tiempo 60%. ¿Qué proceso?';
+      else if(q.includes('email') || q.includes('cliente')) response = 'Para emails: 1) Personaliza, 2) Beneficios específicos, 3) CTA clara, 4) Seguimiento en 3 días.';
+      else if(q.includes('venta') || q.includes('cerrar')) response = 'Proceso: 1) Resumen beneficios, 2) Despeja objeciones, 3) Opciones de pago, 4) Cierre directo.';
+      else if(q.includes('precio') || q.includes('comisi')) response = 'Comisión típica: 5-6% total. Para precios: análisis CMA, ubicación, condición, mercado.';
+
+      var respDiv = document.createElement('div');
+      respDiv.style.alignSelf = 'flex-start';
+      respDiv.style.maxWidth = '80%';
+      respDiv.style.padding = '10px 14px';
+      respDiv.style.background = 'var(--panel-alt)';
+      respDiv.style.color = 'var(--ink)';
+      respDiv.style.borderRadius = '8px';
+      respDiv.style.fontSize = '12px';
+      respDiv.style.lineHeight = '1.4';
+      respDiv.textContent = response;
+      body.appendChild(respDiv);
+      body.scrollTop = body.scrollHeight;
+    }, 600);
+  }
 });
 
 function showAiAnswer(text, isLoading){
