@@ -330,6 +330,9 @@ table.leads tr:last-child td{border-bottom:none}
 .chat-modal-input input{flex:1;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;background:var(--panel-alt);color:var(--ink-faint)}
 .chat-modal-input button{background:var(--assist);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:12px}
 .chat-modal-input button:hover{background:var(--assist-deep)}
+.chat-modal-suggestions{display:flex;flex-direction:column;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.chat-suggestion-btn{background:var(--panel-alt);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--ink-soft);cursor:pointer;text-align:left;transition:all .2s}
+.chat-suggestion-btn:hover{background:var(--assist);color:#fff;border-color:var(--assist)}
 
 footer.page-footer{display:flex;justify-content:space-between;align-items:center;padding-top:38px;margin-top:38px;border-top:1px solid var(--border);flex-wrap:wrap;gap:14px}
 .tagline{font-family:'Cormorant',serif;font-style:italic;font-weight:600;font-size:20px;color:var(--assist)}
@@ -1007,6 +1010,11 @@ body.app-locked header.topbar,body.app-locked .page,body.app-locked .mobile-nav,
   <div class="chat-modal-input">
     <input type="text" id="chatModalInput" placeholder="Escribe tu pregunta...">
     <button id="chatModalBtn">Enviar</button>
+  </div>
+  <div class="chat-modal-suggestions">
+    <button class="chat-suggestion-btn" data-prompt="Revisa los presupuestos pendientes de hoy">📊 Revisar presupuestos</button>
+    <button class="chat-suggestion-btn" data-prompt="Cuál es el estado de mis proyectos en progreso">🚀 Estado de proyectos</button>
+    <button class="chat-suggestion-btn" data-prompt="Resumen de las tareas prioritarias de hoy">⭐ Tareas prioritarias</button>
   </div>
 </div>
 
@@ -1900,6 +1908,14 @@ document.getElementById('assistBtn').addEventListener('click', function(){
 
 document.getElementById('chatModalClose').addEventListener('click', function(){
   document.getElementById('chatModal').classList.remove('open');
+});
+
+document.querySelectorAll('.chat-suggestion-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var prompt = btn.getAttribute('data-prompt');
+    document.getElementById('chatModalInput').value = prompt;
+    document.getElementById('chatModalInput').focus();
+  });
 });
 
 document.getElementById('chatModalInput').addEventListener('keydown', function(e){
