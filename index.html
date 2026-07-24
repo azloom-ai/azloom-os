@@ -1886,17 +1886,33 @@ function showAiAnswer(text, isLoading){
   box.classList.add('show');
 }
 
-function sendQuestionToN8n(question){
+function sendQuestionToClaude(question){
   showAiAnswer('', true);
-  fetch('https://azloomn8n-azloomn8n.ydeb8o.easypanel.host/webhook-test/azloom-assistant', {
+  var apiKey = window.CLAUDE_API_KEY || prompt('Ingresa tu API key de Claude:');
+  if(!apiKey) {
+    showAiAnswer('API key de Claude no configurada', false);
+    return;
+  }
+  fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({question: question})
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1024,
+      messages: [{role: 'user', content: question}]
+    })
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    var response = data.response || 'No se pudo obtener respuesta';
-    showAiAnswer(response, false);
+    if(data.content && data.content[0]){
+      showAiAnswer(data.content[0].text, false);
+    } else {
+      showAiAnswer('Error: respuesta inválida', false);
+    }
   })
   .catch(function(err){
     showAiAnswer('Error conectando con Claude: ' + err.message, false);
@@ -1915,7 +1931,7 @@ document.getElementById('aiAskBtn').addEventListener('click', function(){
   var input = document.getElementById('aiInput');
   var question = (input.value || '').trim();
   if(question){
-    sendQuestionToN8n(question);
+    sendQuestionToClaude(question);
     input.value = '';
   }
 });
