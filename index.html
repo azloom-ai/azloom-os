@@ -1696,7 +1696,7 @@ function stackCard(key){
   var toolsHTML = f.items.map(function(ik){
     var d = stackDefs[ik];
     if(!d) return '';
-    return '<span class="stack-tool-chip '+d.cls+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d.icon+'</svg></span>';
+    return '<button class="stack-tool-chip '+d.cls+'" data-app="'+ik+'" style="border:none;background:none;padding:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d.icon+'</svg></button>';
   }).join('');
   return '<div class="stack-card" data-key="'+key+'"><div class="stack-icon '+f.cls+'"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+f.icon+'</svg></div>'+
     '<div class="stack-eyebrow">'+eyebrowText+'</div>'+
@@ -2092,6 +2092,15 @@ loadOrder('azloom.folderOrder').then(function(saved){
     grid.innerHTML = stackData().join('');
     initSortableGrid(grid, 'azloom.folderOrder', false, function(){
       folderOrder = Array.prototype.map.call(grid.children, function(c){ return c.getAttribute('data-key'); });
+    });
+    grid.addEventListener('click', function(e){
+      var btn = e.target.closest('.stack-tool-chip');
+      if(btn){
+        var appKey = btn.getAttribute('data-app');
+        if(appUrls[appKey]){
+          window.open(appUrls[appKey], '_blank');
+        }
+      }
     });
   }
 });
