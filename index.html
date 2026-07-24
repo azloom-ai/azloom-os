@@ -1888,30 +1888,17 @@ function showAiAnswer(text, isLoading){
 
 function sendQuestionToClaude(question){
   showAiAnswer('', true);
-  var apiKey = window.CLAUDE_API_KEY || prompt('Ingresa tu API key de Claude:');
-  if(!apiKey) {
-    showAiAnswer('API key de Claude no configurada', false);
-    return;
-  }
-  fetch('https://api.anthropic.com/v1/messages', {
+  fetch('/api/claude', {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1024,
-      messages: [{role: 'user', content: question}]
-    })
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({question: question})
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    if(data.content && data.content[0]){
-      showAiAnswer(data.content[0].text, false);
+    if(data.response){
+      showAiAnswer(data.response, false);
     } else {
-      showAiAnswer('Error: respuesta inválida', false);
+      showAiAnswer('Error: ' + (data.error || 'respuesta inválida'), false);
     }
   })
   .catch(function(err){

@@ -1,0 +1,94 @@
+{
+  "name": "Azloom OS - Chat Asistente",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "azloom-assistant",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{$secrets.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "contentType": "application/json",
+        "body": "{\n  \"model\": \"claude-3-5-sonnet-20241022\",\n  \"max_tokens\": 1024,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$json.body.question}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "claude_http",
+      "name": "Claude - Procesar Pregunta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        550,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "responseBody": "{\n  \"success\": true,\n  \"response\": \"{{$json.content[0].text}}\",\n  \"timestamp\": \"{{$now.toISOString()}}\"\n}"
+      },
+      "id": "webhook_response",
+      "name": "Responder al Cliente",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "claude_http",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude_http": {
+      "main": [
+        [
+          {
+            "node": "webhook_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "any",
+    "errorHandler": {}
+  },
+  "versionId": "b5efccdd-ddb8-4569-8ce0-5e9f9e8c8f3b"
+}

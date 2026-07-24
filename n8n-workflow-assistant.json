@@ -1,0 +1,89 @@
+{
+  "name": "Azloom OS - Chat Asistente",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "azloom-assistant",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "jsonOutput": false,
+        "options": {},
+        "messages": [
+          {
+            "contentType": "text",
+            "content": "Eres un asistente inteligente que ayuda al usuario con preguntas sobre su negocio y operaciones. Sé conciso, profesional y útil.\n\nPregunta del usuario: {{$json.body.question}}"
+          }
+        ]
+      },
+      "id": "claude_message",
+      "name": "Claude - Procesar Pregunta",
+      "type": "n8n-nodes-base.anthropic",
+      "typeVersion": 1,
+      "position": [
+        550,
+        300
+      ],
+      "credentials": {
+        "anthropicApi": "claude_api"
+      }
+    },
+    {
+      "parameters": {
+        "responseBody": "{\n  \"success\": true,\n  \"response\": \"{{$json.content[0].text}}\",\n  \"timestamp\": \"{{$now.toISOString()}}\"\n}"
+      },
+      "id": "webhook_response",
+      "name": "Responder al Cliente",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "claude_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude_message": {
+      "main": [
+        [
+          {
+            "node": "webhook_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "any",
+    "errorHandler": {}
+  },
+  "versionId": "b5efccdd-ddb8-4569-8ce0-5e9f9e8c8f3a"
+}
