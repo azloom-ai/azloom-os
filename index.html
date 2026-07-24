@@ -608,6 +608,11 @@ body.app-locked header.topbar,body.app-locked .page,body.app-locked .mobile-nav,
         <button class="ai-ask-btn" id="aiAskBtn" data-i18n="ai.ask" type="button">Preguntar</button>
         <button class="ai-ask-btn" id="aiClearBtn" style="background:var(--coral);opacity:0.7;" type="button" title="Limpiar chat">✕</button>
       </div>
+      <div class="chat-modal-suggestions" style="border-top:1px solid var(--border);border-bottom:0">
+        <button class="chat-suggestion-btn ai-suggestion" data-prompt="Revisa los presupuestos pendientes de hoy">📊 Revisar presupuestos</button>
+        <button class="chat-suggestion-btn ai-suggestion" data-prompt="Cuál es el estado de mis proyectos en progreso">🚀 Estado de proyectos</button>
+        <button class="chat-suggestion-btn ai-suggestion" data-prompt="Resumen de las tareas prioritarias de hoy">⭐ Tareas prioritarias</button>
+      </div>
       <div class="ai-answer" id="aiAnswer"></div>
     </div>
 
@@ -1913,8 +1918,18 @@ document.getElementById('chatModalClose').addEventListener('click', function(){
 document.querySelectorAll('.chat-suggestion-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     var prompt = btn.getAttribute('data-prompt');
-    document.getElementById('chatModalInput').value = prompt;
-    document.getElementById('chatModalInput').focus();
+    if(document.getElementById('chatModalInput')){
+      document.getElementById('chatModalInput').value = prompt;
+      document.getElementById('chatModalInput').focus();
+    }
+  });
+});
+
+document.querySelectorAll('.ai-suggestion').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var prompt = btn.getAttribute('data-prompt');
+    document.getElementById('aiInput').value = prompt;
+    document.getElementById('aiInput').focus();
   });
 });
 
