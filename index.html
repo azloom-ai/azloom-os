@@ -1696,7 +1696,8 @@ function stackCard(key){
   var toolsHTML = f.items.map(function(ik){
     var d = stackDefs[ik];
     if(!d) return '';
-    return '<button class="stack-tool-chip '+d.cls+'" data-app="'+ik+'" style="border:none;background:none;padding:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d.icon+'</svg></button>';
+    var toolName = d.nameKey ? dict[d.nameKey][currentLang] : d.name;
+    return '<button class="stack-tool-chip '+d.cls+'" data-app="'+ik+'" title="'+toolName+'" style="border:none;background:none;padding:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d.icon+'</svg></button>';
   }).join('');
   return '<div class="stack-card" data-key="'+key+'"><div class="stack-icon '+f.cls+'"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+f.icon+'</svg></div>'+
     '<div class="stack-eyebrow">'+eyebrowText+'</div>'+
@@ -1899,6 +1900,13 @@ document.getElementById('assistBtn').addEventListener('click', function(){
 
 document.getElementById('chatModalClose').addEventListener('click', function(){
   document.getElementById('chatModal').classList.remove('open');
+});
+
+document.getElementById('chatModalInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    document.getElementById('chatModalBtn').click();
+  }
 });
 
 document.getElementById('chatModalBtn').addEventListener('click', function(){
