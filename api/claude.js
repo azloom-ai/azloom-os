@@ -23,8 +23,8 @@ export default async function handler(req, res) {
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-1',
-        max_tokens: 1024,
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 512,
         messages: [{ role: 'user', content: question }]
       })
     });
