@@ -1876,29 +1876,48 @@ document.getElementById('assistBtn').addEventListener('click', function(){
   }, 250);
 });
 
-function showAiAnswer(key){
+function showAiAnswer(text, isLoading){
   var box = document.getElementById('aiAnswer');
-  var answerKey = 'ai.a' + key.slice(1);
-  if(!dict[answerKey]) return;
-  box.innerHTML = '<div class="ai-answer-label">⚡ Azloom Intelligence</div><div class="ai-answer-text">'+dict[answerKey][currentLang]+'</div>';
+  if(isLoading){
+    box.innerHTML = '<div class="ai-answer-label">⚡ Azloom Intelligence</div><div class="ai-answer-text" style="opacity:0.6;">Procesando tu pregunta...</div>';
+  } else {
+    box.innerHTML = '<div class="ai-answer-label">⚡ Azloom Intelligence</div><div class="ai-answer-text">'+text+'</div>';
+  }
   box.classList.add('show');
 }
+
+function sendQuestionToN8n(question){
+  showAiAnswer('', true);
+  fetch('https://azloomn8n-azloomn8n.ydeb8o.easypanel.host/webhook-test/azloom-assistant', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({question: question})
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    var response = data.response || 'No se pudo obtener respuesta';
+    showAiAnswer(response, false);
+  })
+  .catch(function(err){
+    showAiAnswer('Error conectando con Claude: ' + err.message, false);
+  });
+}
+
 document.querySelectorAll('.ai-chip').forEach(function(chip){
   chip.addEventListener('click', function(){
     var key = chip.getAttribute('data-ai');
     var input = document.getElementById('aiInput');
     if(input) input.value = dict['ai.'+key][currentLang];
-    showAiAnswer(key);
   });
 });
+
 document.getElementById('aiAskBtn').addEventListener('click', function(){
-  var val = (document.getElementById('aiInput').value || '').toLowerCase();
-  var key = 'q4';
-  if(val.includes('reporte de la semana') || val.includes('semana') || val.includes('week')) key = 'q1';
-  else if(val.includes('plano') || val.includes('bandeja') || val.includes('drawing') || val.includes('inbox')) key = 'q2';
-  else if(val.includes('inspecc') || val.includes('inspect')) key = 'q3';
-  else if(val.includes('render')) key = 'q4';
-  showAiAnswer(key);
+  var input = document.getElementById('aiInput');
+  var question = (input.value || '').trim();
+  if(question){
+    sendQuestionToN8n(question);
+    input.value = '';
+  }
 });
 
 function showPage(page){
